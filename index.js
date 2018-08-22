@@ -3,6 +3,7 @@ const express = require('express');
 const SettingsBill = require('./SettingsBill');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
+var moment = require('moment');
 const app = express();
 
 // factory instance
@@ -17,7 +18,13 @@ app.use(bodyParser.json());
 
 // configure handlebars
 app.engine('handlebars', exphbs({
-    defaultLayout: 'main'
+    defaultLayout: 'main',
+    helpers: {
+        'time': function () {
+            return moment(this.time).fromNow();
+        }
+
+    }
 }));
 app.set('view engine', 'handlebars');
 
@@ -42,6 +49,14 @@ app.get('/actions/:billItemType', function (req, res) {
     });
 });
 // POST routes
+app.post('/resets', function (req, res) {
+    let reset = {
+        resetB: settingsBill.reset()
+    };
+    res.render('home', {
+        reset
+    });
+});
 app.post('/settings', function (req, res) {
     settingsBill.setSettings({
         callCost: req.body.callCost,

@@ -1,26 +1,33 @@
-module.exports = function SettingsBill () {
+module.exports = function () {
     let smsCost;
     let callCost;
+    let callTotal;
+    let smsTotal;
     let warningLevel;
     let criticalLevel;
+    let filteredActions = [];
 
     let actionList = [];
 
-    // let settings = {
-    //   smsCost: 5,
-    //   callCost: 10,
-    //   warningLevel: 15,
-    //   critical: 20
-    // }
+    function reset() {
+        smsCost = 0;
+        callCost = 0;
+        callTotal = 0;
+        smsTotal = 0;
+        warningLevel = 0;
+        criticalLevel = 0;
+        filteredActions = [];
+        actionList = [];
+    }
 
-    function setSettings (settings) {
+    function setSettings(settings) {
         smsCost = Number(settings.smsCost);
         callCost = Number(settings.callCost);
         warningLevel = settings.warningLevel;
         criticalLevel = settings.criticalLevel;
     }
 
-    function getSettings () {
+    function getSettings() {
         return {
             smsCost,
             callCost,
@@ -29,7 +36,7 @@ module.exports = function SettingsBill () {
         };
     }
 
-    function recordAction (action) {
+    function recordAction(action) {
         if (hasReachedCriticalLevel()) {
             return;
         }
@@ -44,16 +51,16 @@ module.exports = function SettingsBill () {
         actionList.push({
             type: action,
             cost,
-            timestamp: new Date()
+            time: new Date()
         });
     }
 
-    function actions () {
+    function actions() {
         return actionList;
     }
 
-    function actionsFor (type) {
-        const filteredActions = [];
+    function actionsFor(type) {
+        //let filteredActions = [];
 
         // loop through all the entries in the action list
         for (let index = 0; index < actionList.length; index++) {
@@ -67,10 +74,10 @@ module.exports = function SettingsBill () {
 
         return filteredActions;
 
-    // return actionList.filter((action) => action.type === type);
+        // return actionList.filter((action) => action.type === type);
     }
 
-    function getTotal (type) {
+    function getTotal(type) {
         let total = 0;
         // loop through all the entries in the action list
         for (let index = 0; index < actionList.length; index++) {
@@ -85,17 +92,17 @@ module.exports = function SettingsBill () {
 
         // the short way using reduce and arrow functions
 
-    // return actionList.reduce((total, action) => {
-    //     let val = action.type === type ? action.cost : 0;
-    //     return total + val;
-    // }, 0);
+        // return actionList.reduce((total, action) => {
+        //     let val = action.type === type ? action.cost : 0;
+        //     return total + val;
+        // }, 0);
     }
 
-    function grandTotal () {
+    function grandTotal() {
         return getTotal('sms') + getTotal('call');
     }
 
-    function colorChange () {
+    function colorChange() {
         if (hasReachedWarningLevel()) {
             return 'warning';
         } else if (hasReachedCriticalLevel()) {
@@ -103,9 +110,9 @@ module.exports = function SettingsBill () {
         }
     }
 
-    function totals () {
-        let smsTotal = getTotal('sms');
-        let callTotal = getTotal('call');
+    function totals() {
+        smsTotal = getTotal('sms');
+        callTotal = getTotal('call');
 
         return {
             smsTotal,
@@ -125,15 +132,15 @@ module.exports = function SettingsBill () {
     //   return smsTotal;
     // }
 
-    function hasReachedWarningLevel () {
+    function hasReachedWarningLevel() {
         const total = grandTotal();
         const reachedWarningLevel = total >= warningLevel &&
-      total < criticalLevel;
+            total < criticalLevel;
 
         return reachedWarningLevel;
     }
 
-    function hasReachedCriticalLevel () {
+    function hasReachedCriticalLevel() {
         const total = grandTotal();
         const reachedCriticalLevel = total >= criticalLevel;
         return reachedCriticalLevel;
@@ -149,6 +156,7 @@ module.exports = function SettingsBill () {
         colorChange,
         hasReachedWarningLevel,
         hasReachedCriticalLevel,
-        getTotal
+        getTotal,
+        reset
     };
 };
